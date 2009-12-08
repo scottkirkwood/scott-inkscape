@@ -6,6 +6,7 @@ import sys
 sys.path.append('/usr/share/inkscape/extensions')
 
 from simplestyle import *
+from xy import XY
 import inkex
 import os
 import simplepath
@@ -68,55 +69,6 @@ def MergeById(cur_defs, to_merge_defs, tagname):
     if new_def.get('id') not in curIds:
       cur_defs.append(new_def)
 
-class XY:
-  def __init__(self, x=0, y=0):
-    self.x = x
-    self.y = y
-
-  def set(self, xy):
-    self.x = xy.x
-    self.y = xy.y
-    return self
-
-  def setx(self, xy):
-    if isinstance(xy, XY):
-      self.x = xy.x
-    else:
-      self.x = xy
-    return self
-
-  def sety(self, xy):
-    if isinstance(xy, XY):
-      self.y = xy.y
-    else:
-      self.y = xy
-    return self
-
-  def trans(self, xy):
-    self.x += xy.x
-    self.y += xy.y
-
-  def trans(self, dx, dy):
-    """Translate."""
-    self.x += dx
-    self.y += dy
-    return self
-
-  def transx(self, dx):
-    """Translate in x direction."""
-    if isinstance(dx, XY):
-      self.x += dx.x
-    else:
-      self.x += dx
-    return self
-
-  def transy(self, dy):
-    """Translate in y direction."""
-    if isinstance(dy, XY):
-      self.y += dy.y
-    else:
-      self.y += dy
-    return self
 
 class HelloWorldEffect(inkex.Effect):
   """
