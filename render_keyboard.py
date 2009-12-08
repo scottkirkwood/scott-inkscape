@@ -79,12 +79,22 @@ class XY:
     return self
 
   def setx(self, xy):
-    self.x = xy.x
+    if isinstance(xy, XY):
+      self.x = xy.x
+    else:
+      self.x = xy
     return self
 
   def sety(self, xy):
-    self.y = xy.y
+    if isinstance(xy, XY):
+      self.y = xy.y
+    else:
+      self.y = xy
     return self
+
+  def trans(self, xy):
+    self.x += xy.x
+    self.y += xy.y
 
   def trans(self, dx, dy):
     """Translate."""
@@ -94,12 +104,18 @@ class XY:
 
   def transx(self, dx):
     """Translate in x direction."""
-    self.x += dx
+    if isinstance(dx, XY):
+      self.x += dx.x
+    else:
+      self.x += dx
     return self
 
   def transy(self, dy):
     """Translate in y direction."""
-    self.y += dy
+    if isinstance(dy, XY):
+      self.y += dy.y
+    else:
+      self.y += dy
     return self
 
 class HelloWorldEffect(inkex.Effect):
@@ -145,6 +161,8 @@ class HelloWorldEffect(inkex.Effect):
     xy = XY(10, 10)
     no_resize = XY(1, 1) 
     key_w, key_h = self.key.key_w, self.key.key_h
+    homepadx = XY(xy.x + key_w * 15.2, 0)
+    numpadx = XY(xy.x + key_w * 18.4, 0)
 
     keys = ['Esc', '.', 'F1', 'F2', 'F3', 'F4', '', 'F5', 'F6', 'F7', 'F8', '', 'F9', 'F10', 'F11', 'F12']
     curxy = XY()
@@ -158,7 +176,7 @@ class HelloWorldEffect(inkex.Effect):
         continue
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
-    curxy.transx(key_w / 4)
+    curxy.setx(homepadx)
     for key_let in ['PrtScr', 'Scroll', 'Pause']:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
@@ -170,11 +188,11 @@ class HelloWorldEffect(inkex.Effect):
 
     curxy = self.PositionKey(self.key, curxy, XY(2.0, 1), 'Back')
 
-    curxy.transx(key_w / 4)
+    curxy.setx(homepadx)
     for key_let in ['Ins', 'Home', 'PgUp']:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
-    curxy.transx(key_w / 4)
+    curxy.setx(numpadx)
     for key_let in ['Num', '/', '*', '-']:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
@@ -188,14 +206,15 @@ class HelloWorldEffect(inkex.Effect):
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
     curxy = self.PositionKey(self.key, curxy, XY(1.5, 1), '\\')
 
-    curxy.transx(key_w / 4)
+    curxy.setx(homepadx)
     for key_let in ['Del', 'End', 'PgDn']:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
-    curxy.transx(key_w / 4)
-    for key_let in ['7', '8', '9', '+']:
+    curxy.setx(numpadx)
+    for key_let in ['7', '8', '9']:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-
+    
+    curxy = self.PositionKey(self.key, curxy, XY(1, 2.06), '+')
     curxy.setx(xy)  # new line
     curxy.transy(key_h)
 
@@ -206,14 +225,14 @@ class HelloWorldEffect(inkex.Effect):
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
     curxy = self.PositionKey(self.key, curxy, XY(1.99, 1), 'Enter')
     
-    curxy.transx(key_w / 2 + key_w * 3)
+    curxy.setx(numpadx)
     for key_let in ['4', '5', '6']:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
     curxy.setx(xy)  # new line
     curxy.transy(key_h)
 
-    shift_w = 2.49
+    shift_w = 2.48
     curxy = self.PositionKey(self.key, curxy, XY(shift_w, 1), 'Shift')
 
     keys = 'ZXCVBNM,./'
@@ -222,14 +241,16 @@ class HelloWorldEffect(inkex.Effect):
 
     curxy = self.PositionKey(self.key, curxy, XY(2.65, 1), 'Shift')
     
-    curxy.transx(key_w / 4 + key_w)
+    curxy.setx(homepadx)
+    curxy.transx(key_w)
     for key_let in ['^']:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
-    curxy.transx(key_w + key_w / 4)
+    curxy.setx(numpadx)
     for key_let in ['1', '2', '3']:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-
+    
+    curxy = self.PositionKey(self.key, curxy, XY(1, 2.06), 'E')
     curxy.setx(xy)
     curxy.transy(key_h)
     for key_let in ['Ctrl', 'Win', 'Alt']:
@@ -243,12 +264,12 @@ class HelloWorldEffect(inkex.Effect):
       wider = 1.282
       curxy = self.PositionKey(self.key, curxy, XY(wider, 1), key_let)
 
-    curxy.transx(key_w / 4)
+    curxy.setx(homepadx)
     for key_let in ['<', 'd', '>']:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
-    curxy.transx(key_w / 4)
-    curxy = self.PositionKey(self.key, curxy, XY(2.1, 1), '0')
+    curxy.setx(numpadx)
+    curxy = self.PositionKey(self.key, curxy, XY(2.05, 1), '0')
     curxy = self.PositionKey(self.key, curxy, no_resize, '.')
 
 
@@ -278,6 +299,7 @@ class HelloWorldEffect(inkex.Effect):
     dy = h - old_h
 
     rect.set('width', str(w))
+    rect.set('height', str(h))
     for path in cur_key.iterchildren(addNS('text', 'svg')):
       TranslateXY(path, (dx / 2.0, 0))
       for tspan in path.iterchildren(addNS('tspan', 'svg')):
@@ -285,7 +307,7 @@ class HelloWorldEffect(inkex.Effect):
     for path in cur_key.iterchildren(addNS('path', 'svg')):
       d = svg_regex.svg_parser.parse(path.get('d'))
       id = path.get('id')
-      d2 = TranslatePath(d, (dx, dy), (10, 10))
+      d2 = TranslatePath(d, (dx, dy), (10, 20))
       path.set('d', d2)
     self.layer.append(cur_key)
     return xy.transx(element.key_w + dx + 0.1 * dwh.x)
