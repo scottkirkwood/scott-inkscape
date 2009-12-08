@@ -7,11 +7,12 @@ sys.path.append('/usr/share/inkscape/extensions')
 
 from simplestyle import *
 from xy import XY
+import copy
 import inkex
+import logging
 import os
 import simplepath
-import logging
-import copy
+import scancodes
 import svg_regex
 
 addNS = inkex.addNS
@@ -81,6 +82,9 @@ class HelloWorldEffect(inkex.Effect):
     """
     # Call the base class constructor.
     inkex.Effect.__init__(self)
+
+    self.scancodes = scancodes.ScanCodes()
+    self.scancodes.Load('us.kbd')
 
     # Define string option "--what" with "-w" shortcut and default value "World".
     self.OptionParser.add_option('-k', '--keyfile', action = 'store',
