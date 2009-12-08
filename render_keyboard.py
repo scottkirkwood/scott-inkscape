@@ -120,7 +120,7 @@ class HelloWorldEffect(inkex.Effect):
     homepadx = XY(xy.x + key_w * 15.2, 0)
     numpadx = XY(xy.x + key_w * 18.4, 0)
 
-    keys = ['Esc', '.', 'F1', 'F2', 'F3', 'F4', '', 'F5', 'F6', 'F7', 'F8', '', 'F9', 'F10', 'F11', 'F12']
+    keys = [1, '.', 59, 60, 61, 62, '', 63, 64, 65, 66, '', 67, 68, 87, 88]
     curxy = XY()
     curxy.set(xy)
     for key_let in keys:
@@ -133,100 +133,100 @@ class HelloWorldEffect(inkex.Effect):
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
     curxy.setx(homepadx)
-    for key_let in ['PrtScr', 'Scroll', 'Pause']:
+    for key_let in [99, 70, 119]:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
     curxy.setx(xy)
     curxy.transy(key_h * 1.2)
-    keys = '`1234567890-='
+    keys = [41, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
     for key_let in keys:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
-    curxy = self.PositionKey(self.key, curxy, XY(2.0, 1), 'Back')
+    curxy = self.PositionKey(self.key, curxy, XY(2.0, 1), 14)
 
     curxy.setx(homepadx)
-    for key_let in ['Ins', 'Home', 'PgUp']:
+    for key_let in [110, 102, 104]:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
     curxy.setx(numpadx)
-    for key_let in ['Num', '/', '*', '-']:
+    for key_let in [69, 98, 55, 74]:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
     curxy.setx(xy)
     curxy.transy(key_h)
     tab_w = 1.5
-    curxy = self.PositionKey(self.key, curxy, XY(tab_w, 1), 'Tab')
+    curxy = self.PositionKey(self.key, curxy, XY(tab_w, 1), 15)
     
-    keys = 'QWERTYUIOP[]'
+    keys = [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
     for key_let in keys:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-    curxy = self.PositionKey(self.key, curxy, XY(1.5, 1), '\\')
+    curxy = self.PositionKey(self.key, curxy, XY(1.5, 1), 43)
 
     curxy.setx(homepadx)
-    for key_let in ['Del', 'End', 'PgDn']:
+    for key_let in [110, 107, 109]:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
     curxy.setx(numpadx)
-    for key_let in ['7', '8', '9']:
+    for key_let in [71, 72, 73]:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
     
-    curxy = self.PositionKey(self.key, curxy, XY(1, 2.06), '+')
+    curxy = self.PositionKey(self.key, curxy, XY(1, 2.06), 78)
     curxy.setx(xy)  # new line
     curxy.transy(key_h)
 
-    curxy = self.PositionKey(self.key, curxy, XY(2.1, 1), 'Caps')
+    curxy = self.PositionKey(self.key, curxy, XY(2.1, 1), 58)
 
-    keys = 'ASDFGHJKL;\''
+    keys = [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
     for i, key_let in enumerate(keys):
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-    curxy = self.PositionKey(self.key, curxy, XY(1.99, 1), 'Enter')
+    curxy = self.PositionKey(self.key, curxy, XY(1.99, 1), 28)
     
     curxy.setx(numpadx)
-    for key_let in ['4', '5', '6']:
+    for key_let in [75, 76, 77]:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
     curxy.setx(xy)  # new line
     curxy.transy(key_h)
 
     shift_w = 2.48
-    curxy = self.PositionKey(self.key, curxy, XY(shift_w, 1), 'Shift')
+    curxy = self.PositionKey(self.key, curxy, XY(shift_w, 1), 42)
 
-    keys = 'ZXCVBNM,./'
+    keys = [44, 45, 46, 47, 48, 49, 50, 51, 52, 53]
     for i, key_let in enumerate(keys):
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
-    curxy = self.PositionKey(self.key, curxy, XY(2.65, 1), 'Shift')
+    curxy = self.PositionKey(self.key, curxy, XY(2.65, 1), 54)
     
     curxy.setx(homepadx)
     curxy.transx(key_w)
-    for key_let in ['^']:
+    for key_let in [103]:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
     curxy.setx(numpadx)
-    for key_let in ['1', '2', '3']:
+    for key_let in [79, 80, 81]:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
     
-    curxy = self.PositionKey(self.key, curxy, XY(1, 2.06), 'E')
+    curxy = self.PositionKey(self.key, curxy, XY(1, 2.06), 96)
     curxy.setx(xy)
     curxy.transy(key_h)
-    for key_let in ['Ctrl', 'Win', 'Alt']:
+    for key_let in [29, 125, 56]:
       wider = 1.4
       curxy = self.PositionKey(self.key, curxy, XY(wider, 1), key_let)
 
     space_w = 6
-    curxy = self.PositionKey(self.key, curxy, XY(space_w, 1), '')
+    curxy = self.PositionKey(self.key, curxy, XY(space_w, 1), 57)
 
-    for key_let in ['Alt', 'Win', 'Menu', 'Ctrl']:
+    for key_let in [84, 126, 127, 97]:
       wider = 1.282
       curxy = self.PositionKey(self.key, curxy, XY(wider, 1), key_let)
 
     curxy.setx(homepadx)
-    for key_let in ['<', 'd', '>']:
+    for key_let in [105, 108, 106]:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
     curxy.setx(numpadx)
-    curxy = self.PositionKey(self.key, curxy, XY(2.05, 1), '0')
-    curxy = self.PositionKey(self.key, curxy, no_resize, '.')
+    curxy = self.PositionKey(self.key, curxy, XY(2.05, 1), 82)
+    curxy = self.PositionKey(self.key, curxy, no_resize, 83)
 
 
   def PositionKey(self, element, xy, dwh, letter):
@@ -239,7 +239,7 @@ class HelloWorldEffect(inkex.Effect):
     """
     cur_key = copy.deepcopy(element.key)
     tspan = cur_key.find('.//' + addNS('tspan', 'svg'))
-    tspan.text = letter
+    tspan.text = self.scancodes.GetChr(letter)
     # Set text position to center of document.
     cur_key.set('transform', 'translate(%d,%d)' % (xy.x, xy.y))
     if dwh.x == 1 and dwh.y == 1:
