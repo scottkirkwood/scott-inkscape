@@ -68,6 +68,40 @@ def MergeById(cur_defs, to_merge_defs, tagname):
     if new_def.get('id') not in curIds:
       cur_defs.append(new_def)
 
+class XY:
+  def __init__(self, x=0, y=0):
+    self.x = x
+    self.y = y
+
+  def set(self, xy):
+    self.x = xy.x
+    self.y = xy.y
+    return self
+
+  def setx(self, xy):
+    self.x = xy.x
+    return self
+
+  def sety(self, xy):
+    self.y = xy.y
+    return self
+
+  def trans(self, dx, dy):
+    """Translate."""
+    self.x += dx
+    self.y += dy
+    return self
+
+  def transx(self, dx):
+    """Translate in x direction."""
+    self.x += dx
+    return self
+
+  def transy(self, dy):
+    """Translate in y direction."""
+    self.y += dy
+    return self
+
 class HelloWorldEffect(inkex.Effect):
   """
   Example Inkscape effect extension.
@@ -108,82 +142,121 @@ class HelloWorldEffect(inkex.Effect):
     self.CreateKeyboard()
 
   def CreateKeyboard(self):
-    y = 10
-    x = 10
+    xy = XY(10, 10)
    
-    key_w = self.key.key_w
-    key_h = self.key.key_h 
+    key_w, key_h = self.key.key_w, self.key.key_h
 
     keys = ['Esc', '.', 'F1', 'F2', 'F3', 'F4', '', 'F5', 'F6', 'F7', 'F8', '', 'F9', 'F10', 'F11', 'F12']
-    cur_x = x
+    curxy = XY()
+    curxy.set(xy)
     for key_let in keys:
       if key_let == '.':
-        cur_x += key_w
+        curxy.transx(key_w)
         continue
       if not key_let:
-        cur_x += key_w / 2
+        curxy.transx(key_w / 2)
         continue
-      cur_x = self.PositionKey(self.key, cur_x, y, 0, key_let)
+      curxy = self.PositionKey(self.key, curxy, 0, key_let)
 
-    cur_x = x
-    y += key_h * 1.2
+    curxy.transx(key_w / 4)
+    for key_let in ['PrtScr', 'Scroll', 'Pause']:
+      curxy = self.PositionKey(self.key, curxy, 0, key_let)
+
+    curxy.setx(xy)
+    curxy.transy(key_h * 1.2)
     keys = '`1234567890-='
     for key_let in keys:
-      cur_x = self.PositionKey(self.key, cur_x, y, 0, key_let)
+      curxy = self.PositionKey(self.key, curxy, 0, key_let)
 
-    cur_x = self.PositionKey(self.key, cur_x, y, 2.0, 'Back')
+    curxy = self.PositionKey(self.key, curxy, 2.0, 'Back')
 
-    cur_x = x
-    y += key_h
+    curxy.transx(key_w / 4)
+    for key_let in ['Ins', 'Home', 'PgUp']:
+      curxy = self.PositionKey(self.key, curxy, 0, key_let)
+
+    curxy.transx(key_w / 4)
+    for key_let in ['Num', '/', '*', '-']:
+      curxy = self.PositionKey(self.key, curxy, 0, key_let)
+
+    curxy.setx(xy)
+    curxy.transy(key_h)
     tab_w = 1.5
-    cur_x = self.PositionKey(self.key, cur_x, y, tab_w, 'Tab')
+    curxy = self.PositionKey(self.key, curxy, tab_w, 'Tab')
     
     keys = 'QWERTYUIOP[]'
     for key_let in keys:
-      cur_x = self.PositionKey(self.key, cur_x, y, 0, key_let)
-    self.PositionKey(self.key, cur_x, y, 1.5, '\\')
+      curxy = self.PositionKey(self.key, curxy, 0, key_let)
+    curxy = self.PositionKey(self.key, curxy, 1.5, '\\')
 
-    cur_x = x  # new line
-    y += key_h
+    curxy.transx(key_w / 4)
+    for key_let in ['Del', 'End', 'PgDn']:
+      curxy = self.PositionKey(self.key, curxy, 0, key_let)
 
-    cur_x = self.PositionKey(self.key, cur_x, y, 2.1, 'Caps')
+    curxy.transx(key_w / 4)
+    for key_let in ['7', '8', '9', '+']:
+      curxy = self.PositionKey(self.key, curxy, 0, key_let)
+
+    curxy.setx(xy)  # new line
+    curxy.transy(key_h)
+
+    curxy = self.PositionKey(self.key, curxy, 2.1, 'Caps')
 
     keys = 'ASDFGHJKL;\''
     for i, key_let in enumerate(keys):
-      cur_x = self.PositionKey(self.key, cur_x, y, 0, key_let)
-    self.PositionKey(self.key, cur_x, y, 2, 'Enter')
+      curxy = self.PositionKey(self.key, curxy, 0, key_let)
+    curxy = self.PositionKey(self.key, curxy, 1.99, 'Enter')
+    
+    curxy.transx(key_w / 2 + key_w * 3)
+    for key_let in ['4', '5', '6']:
+      curxy = self.PositionKey(self.key, curxy, 0, key_let)
 
-    cur_x = x  # new line
-    y += key_h
+    curxy.setx(xy)  # new line
+    curxy.transy(key_h)
 
-    shift_w = 2.5
-    cur_x = self.PositionKey(self.key, cur_x, y, shift_w, 'Shift')
+    shift_w = 2.49
+    curxy = self.PositionKey(self.key, curxy, shift_w, 'Shift')
 
     keys = 'ZXCVBNM,./'
     for i, key_let in enumerate(keys):
-      cur_x = self.PositionKey(self.key, cur_x, y, 0, key_let)
+      curxy = self.PositionKey(self.key, curxy, 0, key_let)
 
-    cur_x = self.PositionKey(self.key, cur_x, y, 2.65, 'Shift')
+    curxy = self.PositionKey(self.key, curxy, 2.65, 'Shift')
+    
+    curxy.transx(key_w / 4 + key_w)
+    for key_let in ['^']:
+      curxy = self.PositionKey(self.key, curxy, 0, key_let)
 
-    cur_x = x
-    y += key_h
+    curxy.transx(key_w + key_w / 4)
+    for key_let in ['1', '2', '3']:
+      curxy = self.PositionKey(self.key, curxy, 0, key_let)
+
+    curxy.setx(xy)
+    curxy.transy(key_h)
     for key_let in ['Ctrl', 'Win', 'Alt']:
       wider = 1.4
-      cur_x = self.PositionKey(self.key, cur_x, y, wider, key_let)
+      curxy = self.PositionKey(self.key, curxy, wider, key_let)
 
     space_w = 6
-    cur_x = self.PositionKey(self.key, cur_x, y, space_w, '')
+    curxy = self.PositionKey(self.key, curxy, space_w, '')
 
     for key_let in ['Alt', 'Win', 'Menu', 'Ctrl']:
-      wider = 1.3
-      cur_x = self.PositionKey(self.key, cur_x, y, wider, key_let)
+      wider = 1.282
+      curxy = self.PositionKey(self.key, curxy, wider, key_let)
+
+    curxy.transx(key_w / 4)
+    for key_let in ['<', 'd', '>']:
+      curxy = self.PositionKey(self.key, curxy, 0, key_let)
+
+    curxy.transx(key_w / 4)
+    curxy = self.PositionKey(self.key, curxy, 2.1, '0')
+    curxy = self.PositionKey(self.key, curxy, 0, '.')
 
 
-  def PositionKey(self, element, x, y, dw, letter):
+  def PositionKey(self, element, xy, dw, letter):
     """Position, stretch and change the letter after duplicating.
     Args:
       element: the element to duplicate
-      x, y: Position to move to.
+      xy: Position to move to.
       dw: How much to make wider 0 or 1 means don't change.
       letter: New letter to use in tspan
     """
@@ -191,10 +264,10 @@ class HelloWorldEffect(inkex.Effect):
     tspan = cur_key.find('.//' + addNS('tspan', 'svg'))
     tspan.text = letter
     # Set text position to center of document.
-    cur_key.set('transform', 'translate(%d,%d)' % (x, y))
+    cur_key.set('transform', 'translate(%d,%d)' % (xy.x, xy.y))
     if not dw or dw == 1:
       self.layer.append(cur_key)
-      return x + element.key_w
+      return xy.transx(element.key_w)
     rect = cur_key.find(addNS('rect', 'svg'))
     old_w = inkex.unittouu(rect.get('width'))
     w = old_w * dw
@@ -211,7 +284,7 @@ class HelloWorldEffect(inkex.Effect):
       d2 = TranslatePath(d, (dx, 0), (10, 0))
       path.set('d', d2)
     self.layer.append(cur_key)
-    return x + element.key_w + dx + 0.1 * dw
+    return xy.transx(element.key_w + dx + 0.1 * dw)
 
 def TranslateXY(elem, (dx, dy)):
   """Translate an element by (x, y)."""
