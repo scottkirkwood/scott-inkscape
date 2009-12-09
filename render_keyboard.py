@@ -32,12 +32,11 @@ def LoadPath(svg_path):
   Returns:
     first layers, width, height
   """
-  extensionDir = os.path.normpath(
-                     os.path.join( os.getcwd(), os.path.dirname(__file__) )
-                 )
+  extension_dir = os.path.normpath(
+      os.path.join(os.getcwd(), os.path.dirname(__file__)))
   # __file__ is better then sys.argv[0] because this file may be a module
   # for another one.
-  fname = os.path.join(extensionDir, svg_path)
+  fname = os.path.join(extension_dir, svg_path)
   logging.info('fname: %r' % fname)
   tree = inkex.etree.parse(fname)
   root = tree.getroot()
@@ -82,9 +81,12 @@ class HelloWorldEffect(inkex.Effect):
     """
     # Call the base class constructor.
     inkex.Effect.__init__(self)
+    self.extension_dir = os.path.normpath(
+        os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
     self.scancodes = scancodes.ScanCodes()
     self.scancodes.Load('us.kbd')
+    self.keys = []
 
     # Define string option "--what" with "-w" shortcut and default value "World".
     self.OptionParser.add_option('-k', '--keyfile', action = 'store',
@@ -112,9 +114,20 @@ class HelloWorldEffect(inkex.Effect):
     self.layer.set(addNS('groupmode', 'inkscape'), 'layer')
 
     self.CreateKeyboard()
+    self.DumpKeys()
+
+  def DumpKeys(self):
+    fo = open(os.path.join(self.extension_dir, 'key_positions.txt'), 'w')
+    fo.write('# Dump of the key layout from render_keyboard.py\n')
+    fo.write('# Scancode, x, y, w, h\n')
+    self.keys.sort()
+    for key in self.keys:
+      fo.write('%d, %d, %d, %d, %d\n' % (key[0], key[1], key[2], key[3], key[4]))
+    fo.close()
+
 
   def CreateKeyboard(self):
-    xy = XY(10, 10)
+    xy = XY(0, 0)
     no_resize = XY(1, 1) 
     key_w, key_h = self.key.key_w, self.key.key_h
     homepadx = XY(xy.x + key_w * 15.2, 0)
@@ -242,11 +255,9 @@ class HelloWorldEffect(inkex.Effect):
     tspan.text = self.scancodes.GetChr(letter)
     # Set text position to center of document.
     cur_key.set('transform', 'translate(%d,%d)' % (xy.x, xy.y))
-    if dwh.x == 1 and dwh.y == 1:
-      # No resizing required.
-      self.layer.append(cur_key)
-      return xy.transx(element.key_w)
     rect = cur_key.find(addNS('rect', 'svg'))
+    old_x = inkex.unittouu(rect.get('x'))
+    old_y = inkex.unittouu(rect.get('y'))
     old_w = inkex.unittouu(rect.get('width'))
     old_h = inkex.unittouu(rect.get('height'))
     w = old_w * dwh.x
@@ -256,6 +267,11 @@ class HelloWorldEffect(inkex.Effect):
 
     rect.set('width', str(w))
     rect.set('height', str(h))
+    self.keys.append((letter, old_x + xy.x, old_y + xy.y, w, h))
+    if dwh.x == 1 and dwh.y == 1:
+      # No resizing required.
+      self.layer.append(cur_key)
+      return xy.transx(element.key_w)
     for path in cur_key.iterchildren(addNS('text', 'svg')):
       TranslateXY(path, (dx / 2.0, 0))
       for tspan in path.iterchildren(addNS('tspan', 'svg')):
