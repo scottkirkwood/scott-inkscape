@@ -117,12 +117,15 @@ class HelloWorldEffect(inkex.Effect):
     self.DumpKeys()
 
   def DumpKeys(self):
-    fo = open(os.path.join(self.extension_dir, 'key_positions.txt'), 'w')
+    fo = open(os.path.join(self.extension_dir, 'key_positions.py'), 'w')
+    fo.write('#!/usr/bin/python\n')
     fo.write('# Dump of the key layout from render_keyboard.py\n')
-    fo.write('# Scancode, x, y, w, h\n')
+    fo.write('# Scancode: (x, y, w, h)\n')
+    fo.write('KEY_POSITIONS = {\n')
     self.keys.sort()
     for key in self.keys:
-      fo.write('%d, %d, %d, %d, %d\n' % (key[0], key[1], key[2], key[3], key[4]))
+      fo.write('    %d: (%d, %d, %d, %d),\n' % (key[0], key[1], key[2], key[3], key[4]))
+    fo.write('}\n')
     fo.close()
 
 
