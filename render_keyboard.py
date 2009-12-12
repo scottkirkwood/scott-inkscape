@@ -89,9 +89,18 @@ class HelloWorldEffect(inkex.Effect):
     self.keys = []
 
     # Define string option "--what" with "-w" shortcut and default value "World".
-    self.OptionParser.add_option('-k', '--keyfile', action = 'store',
-      type = 'string', dest = 'keyfile', default = 'key.svg',
-      help = 'The template svg file')
+    self.OptionParser.add_option('-k', '--keyfile', action='store',
+      type='string', dest='keyfile', default='key.svg',
+      help='The template svg file')
+    self.OptionParser.add_option('-f', '--fkeys', action='store',
+      type='string', dest='fkeys', default='true',
+      help='Display the Escape and Function keys?')
+    self.OptionParser.add_option('-c', '--center_keys', action='store', 
+      type='string', dest='center_keys', default='true',
+      help='Display the Center keys (Home, Ins, Pgup, etc.)?')
+    self.OptionParser.add_option('-n', '--numpad', action='store', 
+      type='string', dest='numpad', default='true',
+      help='Display the Numeric Keypad?')
 
   def effect(self):
     """
@@ -105,6 +114,9 @@ class HelloWorldEffect(inkex.Effect):
     height = inkex.unittouu(svg.get('height'))
 
     cur_defs = svg.find(addNS('defs', 'svg'))
+    self.FixBooleanOption('fkeys')
+    self.FixBooleanOption('center_keys')
+    self.FixBooleanOption('numpad')
     self.key = Key('key.svg')
     self.key.AddDefs(cur_defs)
 
@@ -115,6 +127,16 @@ class HelloWorldEffect(inkex.Effect):
 
     self.CreateKeyboard()
     self.DumpKeys()
+
+  def FixBooleanOption(self, name):
+    """Silly inkscape, doesn't do Booleans properly.
+    This fixes it by setting a variable with the same name as the option.
+    """
+    val = getattr(self.options, name)
+    if val.lower() == 'false':
+      setattr(self, name, False)
+    else:
+      setattr(self, name, True)
 
   def DumpKeys(self):
     fo = open(os.path.join(self.extension_dir, 'key_positions.py'), 'w')
@@ -133,9 +155,85 @@ class HelloWorldEffect(inkex.Effect):
     xy = XY(0, 0)
     no_resize = XY(1, 1) 
     key_w, key_h = self.key.key_w, self.key.key_h
-    homepadx = XY(xy.x + key_w * 15.2, 0)
-    numpadx = XY(xy.x + key_w * 18.4, 0)
+    homepadxy = XY(xy.x + key_w * 15.2, 0)
+    numpadxy = XY(xy.x + key_w * 18.4, key_h * 1.2)
+    
+    curxy = XY(0, 0)
+    self.TopRow(xy)
+    self.NumPad(xy, numpadxy)
+    self.CenterPad(homepadxy)
 
+    curxy.setx(xy)
+    curxy.transy(key_h * 1.2)
+
+    # Backquote to backspace
+    keys = [41, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+    for key_let in keys:
+      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
+
+    curxy = self.PositionKey(self.key, curxy, XY(2.0, 1), 14)
+
+
+    curxy.setx(xy)
+    curxy.transy(key_h)
+    tab_w = 1.5
+    curxy = self.PositionKey(self.key, curxy, XY(tab_w, 1), 15)
+    
+    # Tab, Q-P to backslash
+    keys = [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+    for key_let in keys:
+      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
+    curxy = self.PositionKey(self.key, curxy, XY(1.5, 1), 43)
+
+    curxy.setx(xy)  # new line
+    curxy.transy(key_h)
+
+    curxy = self.PositionKey(self.key, curxy, XY(2.1, 1), 58)
+
+    # Capslock to A-' to Enter
+    keys = [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
+    for i, key_let in enumerate(keys):
+      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
+    curxy = self.PositionKey(self.key, curxy, XY(1.99, 1), 28)
+    
+    curxy.setx(xy)  # new line
+    curxy.transy(key_h)
+
+    shift_w = 2.48
+    curxy = self.PositionKey(self.key, curxy, XY(shift_w, 1), 42)
+
+    # Shift, Z-M to /
+    keys = [44, 45, 46, 47, 48, 49, 50, 51, 52, 53]
+    for i, key_let in enumerate(keys):
+      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
+
+    # Right shift
+    curxy = self.PositionKey(self.key, curxy, XY(2.65, 1), 54)
+    
+    curxy.setx(xy)
+    curxy.transy(key_h)
+    # Ctrl, win, Alt
+    for key_let in [29, 125, 56]:
+      wider = 1.4
+      curxy = self.PositionKey(self.key, curxy, XY(wider, 1), key_let)
+
+    # Space
+    space_w = 6
+    curxy = self.PositionKey(self.key, curxy, XY(space_w, 1), 57)
+
+    # Alt, Win, Menu, Ctrl
+    for key_let in [84, 126, 127, 97]:
+      wider = 1.282
+      curxy = self.PositionKey(self.key, curxy, XY(wider, 1), key_let)
+
+
+  def TopRow(self, xy):
+    if not self.fkeys:
+      return
+    no_resize = XY(1, 1) 
+    key_w, key_h = self.key.key_w, self.key.key_h
+
+    # Function keys
     keys = [1, '.', 59, 60, 61, 62, '', 63, 64, 65, 66, '', 67, 68, 87, 88]
     curxy = XY()
     curxy.set(xy)
@@ -148,114 +246,99 @@ class HelloWorldEffect(inkex.Effect):
         continue
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
-    curxy.setx(homepadx)
-    for key_let in [99, 70, 119]:
-      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
-    curxy.setx(xy)
-    curxy.transy(key_h * 1.2)
-    keys = [41, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-    for key_let in keys:
-      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
+  def NumPad(self, xy, numpadxy):
+    if not self.numpad:
+      return
 
-    curxy = self.PositionKey(self.key, curxy, XY(2.0, 1), 14)
+    no_resize = XY(1, 1) 
+    key_w, key_h = self.key.key_w, self.key.key_h
+    curxy = XY()
+    curxy.set(numpadxy)
 
-    curxy.setx(homepadx)
-    for key_let in [110, 102, 104]:
-      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-
-    curxy.setx(numpadx)
+    # NumLock to Keypad -
     for key_let in [69, 98, 55, 74]:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
-    curxy.setx(xy)
+    curxy.setx(numpadxy)
     curxy.transy(key_h)
-    tab_w = 1.5
-    curxy = self.PositionKey(self.key, curxy, XY(tab_w, 1), 15)
-    
-    keys = [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
-    for key_let in keys:
-      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-    curxy = self.PositionKey(self.key, curxy, XY(1.5, 1), 43)
-
-    curxy.setx(homepadx)
-    for key_let in [110, 107, 109]:
-      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-
-    curxy.setx(numpadx)
+    # 7 to 9
     for key_let in [71, 72, 73]:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-    
+   
+    # Plus 
     curxy = self.PositionKey(self.key, curxy, XY(1, 2.06), 78)
-    curxy.setx(xy)  # new line
+
+    curxy.setx(numpadxy)
     curxy.transy(key_h)
-
-    curxy = self.PositionKey(self.key, curxy, XY(2.1, 1), 58)
-
-    keys = [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
-    for i, key_let in enumerate(keys):
-      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-    curxy = self.PositionKey(self.key, curxy, XY(1.99, 1), 28)
-    
-    curxy.setx(numpadx)
+    # 4-5
     for key_let in [75, 76, 77]:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
-    curxy.setx(xy)  # new line
+    curxy.setx(numpadxy)
     curxy.transy(key_h)
-
-    shift_w = 2.48
-    curxy = self.PositionKey(self.key, curxy, XY(shift_w, 1), 42)
-
-    keys = [44, 45, 46, 47, 48, 49, 50, 51, 52, 53]
-    for i, key_let in enumerate(keys):
-      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-
-    curxy = self.PositionKey(self.key, curxy, XY(2.65, 1), 54)
-    
-    curxy.setx(homepadx)
-    curxy.transx(key_w)
-    for key_let in [103]:
-      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-
-    curxy.setx(numpadx)
+    # 1-3
     for key_let in [79, 80, 81]:
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
     
+    # Enter
     curxy = self.PositionKey(self.key, curxy, XY(1, 2.06), 96)
-    curxy.setx(xy)
+
+    curxy.setx(numpadxy)
     curxy.transy(key_h)
-    for key_let in [29, 125, 56]:
-      wider = 1.4
-      curxy = self.PositionKey(self.key, curxy, XY(wider, 1), key_let)
-
-    space_w = 6
-    curxy = self.PositionKey(self.key, curxy, XY(space_w, 1), 57)
-
-    for key_let in [84, 126, 127, 97]:
-      wider = 1.282
-      curxy = self.PositionKey(self.key, curxy, XY(wider, 1), key_let)
-
-    curxy.setx(homepadx)
-    for key_let in [105, 108, 106]:
-      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-
-    curxy.setx(numpadx)
+    # 0, del
     curxy = self.PositionKey(self.key, curxy, XY(2.05, 1), 82)
     curxy = self.PositionKey(self.key, curxy, no_resize, 83)
 
+  def CenterPad(self, homepadxy):
+    if not self.center_keys:
+      return
+    no_resize = XY(1, 1) 
+    key_w, key_h = self.key.key_w, self.key.key_h
+    curxy = XY()
+    curxy.set(homepadxy)
+    for key_let in [99, 70, 119]:
+      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
-  def PositionKey(self, element, xy, dwh, letter):
+    curxy.setx(homepadxy)
+    curxy.transy(key_h * 1.2)
+    # Ins to PgUp
+    for key_let in [110, 102, 104]:
+      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
+
+    curxy.setx(homepadxy)
+    curxy.transy(key_h)
+    # Del to PgDn
+    for key_let in [111, 107, 109]:
+      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
+
+    curxy.setx(homepadxy)
+    curxy.transy(key_h * 2)
+    curxy.transx(key_w)
+
+    # Up arrow
+    for key_let in [103]:
+      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
+
+    curxy.setx(homepadxy)
+    curxy.transy(key_h)
+    # Left, Down, Right
+    for key_let in [105, 108, 106]:
+      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
+
+
+
+  def PositionKey(self, element, xy, dwh, scancode):
     """Position, stretch and change the letter after duplicating.
     Args:
       element: the element to duplicate
       xy: Position to move to.
       dwh: How much to make wider or higher 1 means don't change.
-      letter: New letter to use in tspan
+      scancode: New scancode to use in tspan
     """
     cur_key = copy.deepcopy(element.key)
     tspan = cur_key.find('.//' + addNS('tspan', 'svg'))
-    tspan.text = self.scancodes.GetChr(letter)
+    tspan.text = self.scancodes.GetChr(scancode)
     # Set text position to center of document.
     cur_key.set('transform', 'translate(%d,%d)' % (xy.x, xy.y))
     rect = cur_key.find(addNS('rect', 'svg'))
@@ -270,7 +353,7 @@ class HelloWorldEffect(inkex.Effect):
 
     rect.set('width', str(w))
     rect.set('height', str(h))
-    self.keys.append((letter, old_x + xy.x, old_y + xy.y, w, h))
+    self.keys.append((scancode, xy.x, xy.y, w, h))
     if dwh.x == 1 and dwh.y == 1:
       # No resizing required.
       self.layer.append(cur_key)

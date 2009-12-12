@@ -4,7 +4,10 @@
   <id>com.forusers.inkscape.render-keyboard</id>
   <dependency type="executable" location="extensions">render_keyboard.py</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
-  <param name="key" type="string" _gui-text="Template svg file">key.svg</param>
+  <param name="keyfile" type="string" _gui-text="Template svg file">key.svg</param>
+  <param name="numpad" type="boolean" _gui-text="Show Numpad">true</param>
+  <param name="fkeys" type="boolean" _gui-text="Show Function keys">true</param>
+  <param name="center_keys" type="boolean" _gui-text="Show Center keys">true</param>
   <effect>
     <object-type>all</object-type>
       <effects-menu>
