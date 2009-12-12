@@ -152,19 +152,32 @@ class HelloWorldEffect(inkex.Effect):
 
 
   def CreateKeyboard(self):
+    key_w, key_h = self.key.key_w, self.key.key_h
+    if self.fkeys:
+      after_functioneys = key_h * 1.2
+    else:
+      after_functioneys = 0
     xy = XY(0, 0)
+    home_startx = key_w * 15.2
+    if self.center_keys:
+      numpad_startx = key_w * 18.4
+    else:
+      numpad_startx = home_startx
+    mainpadxy = XY(xy.x, after_functioneys)
+    homepadxy = XY(xy.x + home_startx, after_functioneys)
+    numpadxy = XY(xy.x + numpad_startx, after_functioneys)
+
+    self.TopRow(xy, homepadxy)
+    self.CenterPad(homepadxy)
+    self.NumPad(numpadxy)
+    self.MainPart(mainpadxy)
+
+  def MainPart(self, xy):
     no_resize = XY(1, 1) 
     key_w, key_h = self.key.key_w, self.key.key_h
-    homepadxy = XY(xy.x + key_w * 15.2, 0)
-    numpadxy = XY(xy.x + key_w * 18.4, key_h * 1.2)
-    
-    curxy = XY(0, 0)
-    self.TopRow(xy)
-    self.NumPad(xy, numpadxy)
-    self.CenterPad(homepadxy)
 
-    curxy.setx(xy)
-    curxy.transy(key_h * 1.2)
+    curxy = XY(0, 0)
+    curxy.set(xy)
 
     # Backquote to backspace
     keys = [41, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
@@ -172,7 +185,6 @@ class HelloWorldEffect(inkex.Effect):
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
     curxy = self.PositionKey(self.key, curxy, XY(2.0, 1), 14)
-
 
     curxy.setx(xy)
     curxy.transy(key_h)
@@ -226,17 +238,16 @@ class HelloWorldEffect(inkex.Effect):
       wider = 1.282
       curxy = self.PositionKey(self.key, curxy, XY(wider, 1), key_let)
 
-
-  def TopRow(self, xy):
+  def TopRow(self, xy, homepadxy):
     if not self.fkeys:
       return
     no_resize = XY(1, 1) 
     key_w, key_h = self.key.key_w, self.key.key_h
 
-    # Function keys
-    keys = [1, '.', 59, 60, 61, 62, '', 63, 64, 65, 66, '', 67, 68, 87, 88]
     curxy = XY()
     curxy.set(xy)
+    # Function keys
+    keys = [1, '.', 59, 60, 61, 62, '', 63, 64, 65, 66, '', 67, 68, 87, 88]
     for key_let in keys:
       if key_let == '.':
         curxy.transx(key_w)
@@ -246,8 +257,45 @@ class HelloWorldEffect(inkex.Effect):
         continue
       curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
+    curxy.setx(homepadxy)
+    for key_let in [99, 70, 119]:
+      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
 
-  def NumPad(self, xy, numpadxy):
+  def CenterPad(self, homepadxy):
+    if not self.center_keys:
+      return
+    no_resize = XY(1, 1) 
+    key_w, key_h = self.key.key_w, self.key.key_h
+    curxy = XY()
+    curxy.set(homepadxy)
+
+    curxy.set(homepadxy)
+    # Ins to PgUp
+    for key_let in [110, 102, 104]:
+      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
+
+    curxy.setx(homepadxy)
+    curxy.transy(key_h)
+    # Del to PgDn
+    for key_let in [111, 107, 109]:
+      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
+
+    curxy.setx(homepadxy)
+    curxy.transy(key_h * 2)
+    curxy.transx(key_w)
+
+    # Up arrow
+    for key_let in [103]:
+      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
+
+    curxy.setx(homepadxy)
+    curxy.transy(key_h)
+    # Left, Down, Right
+    for key_let in [105, 108, 106]:
+      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
+
+
+  def NumPad(self, numpadxy):
     if not self.numpad:
       return
 
@@ -290,43 +338,6 @@ class HelloWorldEffect(inkex.Effect):
     curxy = self.PositionKey(self.key, curxy, XY(2.05, 1), 82)
     curxy = self.PositionKey(self.key, curxy, no_resize, 83)
 
-  def CenterPad(self, homepadxy):
-    if not self.center_keys:
-      return
-    no_resize = XY(1, 1) 
-    key_w, key_h = self.key.key_w, self.key.key_h
-    curxy = XY()
-    curxy.set(homepadxy)
-    for key_let in [99, 70, 119]:
-      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-
-    curxy.setx(homepadxy)
-    curxy.transy(key_h * 1.2)
-    # Ins to PgUp
-    for key_let in [110, 102, 104]:
-      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-
-    curxy.setx(homepadxy)
-    curxy.transy(key_h)
-    # Del to PgDn
-    for key_let in [111, 107, 109]:
-      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-
-    curxy.setx(homepadxy)
-    curxy.transy(key_h * 2)
-    curxy.transx(key_w)
-
-    # Up arrow
-    for key_let in [103]:
-      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-
-    curxy.setx(homepadxy)
-    curxy.transy(key_h)
-    # Left, Down, Right
-    for key_let in [105, 108, 106]:
-      curxy = self.PositionKey(self.key, curxy, no_resize, key_let)
-
-
 
   def PositionKey(self, element, xy, dwh, scancode):
     """Position, stretch and change the letter after duplicating.
@@ -353,7 +364,7 @@ class HelloWorldEffect(inkex.Effect):
 
     rect.set('width', str(w))
     rect.set('height', str(h))
-    self.keys.append((scancode, xy.x, xy.y, w, h))
+    self.keys.append((scancode, xy.x + old_x, xy.y + old_y, w, h))
     if dwh.x == 1 and dwh.y == 1:
       # No resizing required.
       self.layer.append(cur_key)
