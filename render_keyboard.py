@@ -70,10 +70,10 @@ def MergeById(cur_defs, to_merge_defs, tagname):
       cur_defs.append(new_def)
 
 
-class HelloWorldEffect(inkex.Effect):
+class RenderKeyboard(inkex.Effect):
   """
   Example Inkscape effect extension.
-  Creates a new layer with a "Hello World!" text centered in the middle of the document.
+  Render a keyboard from one template image.
   """
   def __init__(self):
     """
@@ -411,5 +411,5 @@ def TranslatePath(d, (dx, dy), (ifgtx, ifgty)):
   return ' '.join(ret)
 
 # Create effect instance and apply it.
-effect = HelloWorldEffect()
+effect = RenderKeyboard()
 effect.affect()
