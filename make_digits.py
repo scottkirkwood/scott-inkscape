@@ -38,6 +38,7 @@ def ExportAllPng(subdir):
 def Combine(subdir):
   args = ['gm', 'montage', '-mode', 'concatenate', '-tile', '20x1']
   ls = os.listdir(subdir)
+  ls.sort()
   for fname in ls:
     fullname = os.path.join(subdir, fname)
     if fname == 'combine.png':
