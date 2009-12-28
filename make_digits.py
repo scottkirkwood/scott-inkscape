@@ -11,21 +11,44 @@ __author__ = 'scott@forusers.com (Scott Kirkwood)'
 
 import optparse
 import subprocess
+import os
 
 def DoOne(number, template, prefix):
   args = ['seven_segment.py', '--number', str(number), template]
-  print args
+  #print ' '.join(args)
   new_svg = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
 
-  fout = open(prefix + str(number) + '.svg', 'w')
+  outfname = prefix + str(number) + '.svg'
+  fout = open(outfname, 'w')
   fout.write(new_svg)
+  print 'Created %s' % outfname
   fout.close()
 
-def Combine(number, template, prefix):
-  args = ['gm', 'montage', '-mode', 'concatenate', '-tile', '10x1']
-  args += ['combine.png']
-  print args
-  subprocess.Call(args)
+def Combine(subdir):
+  args = ['gm', 'montage', '-mode', 'concatenate', '-tile', '20x1']
+  ls = os.listdir(subdir)
+  for fname in ls:
+    if fname == 'combine.png':
+      continue
+    args.append(os.path.join(subdir, fname))
+    args.append('spacer.png')
+  args += [os.path.join(subdir, 'combine.png')]
+  print ' '.join(args)
+  subprocess.call(args)
+
+def BuildAll(subdir):
+  ls = os.listdir(subdir)
+  for filename in ls:
+    fname = os.path.join(subdir, filename)
+    if not os.path.isdir(fname) and fname.endswith('svg'):
+      basename = os.path.splitext(filename)[0]
+      newdir = os.path.join(subdir, basename)
+      if not os.path.exists(newdir):
+        os.mkdir(newdir)
+      prefix = os.path.join(newdir, basename + '-')
+      for num in range(10):
+        DoOne(num, fname, prefix)
+      Combine(newdir)
 
 def Main():
   parser = optparse.OptionParser()
@@ -37,8 +60,11 @@ def Main():
                     help='Build all styles')
   options, args = parser.parse_args()
 
-  for number in range(10):
-    DoOne(number, options.template, options.prefix)
+  if options.buildall:
+    BuildAll('seven-segment')
+  else:
+    for number in range(10):
+      DoOne(number, options.template, options.prefix)
 
 
 if __name__ == '__main__':
