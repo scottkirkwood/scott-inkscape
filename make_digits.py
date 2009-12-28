@@ -14,7 +14,7 @@ import subprocess
 import os
 
 def DoOne(number, template, prefix):
-  args = ['seven_segment.py', '--number', str(number), template]
+  args = ['./seven_segment.py', '--number', str(number), template]
   #print ' '.join(args)
   new_svg = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
 

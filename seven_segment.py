@@ -78,6 +78,9 @@ class SevenSegment(inkex.Effect):
 
   def DeleteSegments(self, root, segments):
     lookup = dict((x, True) for x in segments)
+    lookup.update(dict((x + '1', True) for x in segments))
+    lookup.update(dict((x + '2', True) for x in segments))
+    lookup.update(dict((x + '3', True) for x in segments))
     for g in root.iter(addNS('g', 'svg')):
       for path in g.iterchildren(addNS('path', 'svg')):
         if path.get('id') in lookup:
@@ -88,4 +91,3 @@ class SevenSegment(inkex.Effect):
 # Create effect instance and apply it.
 effect = SevenSegment()
 effect.affect()
-
