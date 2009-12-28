@@ -14,8 +14,8 @@ import subprocess
 import os
 
 def DoOne(number, template, prefix):
-  args = ['./seven_segment.py', '--number', str(number), template]
-  #print ' '.join(args)
+  args = ['seven_segment.py', '--number', str(number), template]
+  print ' '.join(args)
   new_svg = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
 
   outfname = prefix + str(number) + '.svg'
@@ -24,13 +24,28 @@ def DoOne(number, template, prefix):
   print 'Created %s' % outfname
   fout.close()
 
+def ExportAllPng(subdir):
+  ls = os.listdir(subdir)
+  for fname in ls:
+    if not fname.endswith('.svg'):
+      continue
+    filename = os.path.join(subdir, fname)
+    pngname = filename.replace('.svg', '.png')
+    args = ['inkscape', '-f', filename, '--export-png', pngname]
+    print ' '.join(args)
+    subprocess.call(args)
+
 def Combine(subdir):
   args = ['gm', 'montage', '-mode', 'concatenate', '-tile', '20x1']
   ls = os.listdir(subdir)
   for fname in ls:
+    fullname = os.path.join(subdir, fname)
     if fname == 'combine.png':
+      os.unlink(fullname)
       continue
-    args.append(os.path.join(subdir, fname))
+    if not fname.endswith('.png'):
+      continue
+    args.append(fullname)
     args.append('spacer.png')
   args += [os.path.join(subdir, 'combine.png')]
   print ' '.join(args)
@@ -48,6 +63,7 @@ def BuildAll(subdir):
       prefix = os.path.join(newdir, basename + '-')
       for num in range(10):
         DoOne(num, fname, prefix)
+      ExportAllPng(newdir)
       Combine(newdir)
 
 def Main():
